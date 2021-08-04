@@ -11,7 +11,7 @@ def scan_date(timestamp, date_obj):
 
 def convert_date(timestamp):
     d = datetime.utcfromtimestamp(timestamp)
-    formatted_date = d.strftime('%d %m %Y')
+    formatted_date = d.strftime('%d-%m-%Y')
 
     return formatted_date
 
@@ -28,15 +28,32 @@ def simple_scan(filepath, date_obj, trv):
     for entry in os.scandir(filepath):
         if entry.is_dir():
             # print(entry.path)
-            path = str(entry.path)
-            new_path = path.replace('\\', '/')
+            # path = str(entry.path)
+            # new_path = path.replace('\\', '/')
+            simple_scan_to(entry, date_obj, trv)
+        else:
+            info =  entry.stat()
+            mod_date = info.st_mtime
+            if scan_date(info.st_mtime, date_obj):
+                file_name = entry.name
+                filesize = str(round(info.st_size/1000000, 3)) + 'mb'
+                # print(entry.path + " : "+ convert_date(mod_date))
+                details = (file_name, filesize, convert_date(mod_date), entry.path)
+                trv.insert('', 'end', values=details)
+
+def simple_scan_to(filepath, date_obj, trv):
+    for entry in os.scandir(filepath):
+        if entry.is_dir():
+            # print(entry.path)
+            # path = str(entry.path)
+            # new_path = path.replace('\\', '/')
             simple_scan(entry, date_obj, trv)
         else:
             info =  entry.stat()
             mod_date = info.st_mtime
             if scan_date(info.st_mtime, date_obj):
                 file_name = entry.name
-                filesize = info.st_size
+                filesize = str(round(info.st_size/1000000, 3)) + 'mb'
                 # print(entry.path + " : "+ convert_date(mod_date))
                 details = (file_name, filesize, convert_date(mod_date), entry.path)
                 trv.insert('', 'end', values=details)

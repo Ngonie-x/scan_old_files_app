@@ -42,10 +42,24 @@ class Main(Tk):
         self.trv.heading(3, text= 'Date')
         self.trv.heading(4, text= 'Path')
 
-        self.trv.bind('<Button-1>', self.get_row)
+        self.trv.column(1, anchor=CENTER, width=150)
+        self.trv.column(2, anchor=CENTER, width=80)
+        self.trv.column(3, anchor=CENTER, width=80)
+        self.trv.column(4, anchor=CENTER, width=350)
+
+
+
+        self.trv.bind('<<TreeviewSelect>>', self.get_row)
 
         self.delete_btn = ttk.Button(self, text="Delete", command=self.delete_file)
-        self.delete_btn.grid(row=3, column=0, padx=5, pady=5)
+        self.delete_btn.grid(row=4, column=0, padx=5, pady=5)
+
+        # Scroll bars
+        yscrollbar = ttk.Scrollbar(self, orient=VERTICAL, command=self.trv.yview)
+        yscrollbar.grid(row=2, column=2, sticky='ns')
+
+        self.trv.configure(yscroll=yscrollbar.set)
+
 
         
 
@@ -63,16 +77,16 @@ class Main(Tk):
 
 
     def get_row(self, event):
-        self.selected_item = self.trv.selection()[0]
+        self.selected_item = self.trv.selection()
         
 
     def delete_file(self):
         if self.selected_item:
-            # print(self.trv.item(self.selected_item)['values'][3])
-            path = str(self.trv.item(self.selected_item)['values'][3])
-            new_str = path.replace('/', '\\')
-            send2trash(new_str)
-            self.trv.delete(self.selected_item)
+            for item in self.selected_item:
+                path = str(self.trv.item(item)['values'][3])
+                new_str = path.replace('/', '\\')
+                send2trash(new_str)
+                self.trv.delete(item)
         
         
 
